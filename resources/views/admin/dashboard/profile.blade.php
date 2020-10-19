@@ -1,4 +1,5 @@
 @extends('admin.dashboard.index')
+@section('title','Profile')
 @section('content')
     <div class="card">
         <h5 class="card-header">Profile</h5>
