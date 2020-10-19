@@ -329,7 +329,7 @@
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span
                                 class="mr-2 d-none d-lg-inline text-gray-600 small">{{Session::get('user')->name}}</span>
-                            <img class="img-profile rounded-circle" src="@if($user->image) {{$user->image}} @else {{asset('img/1_ctwzukbetpa87r_nnymqjq-533x800-2.jpeg')}} @endif">
+                            <img class="img-profile rounded-circle" src="@if(Session::get('user')->image) {{Session::get('user')->image}} @else {{asset('img/1_ctwzukbetpa87r_nnymqjq-533x800-2.jpeg')}} @endif">
                         </a>
                         <!-- Dropdown - User Information -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"

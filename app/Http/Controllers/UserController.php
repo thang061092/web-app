@@ -60,6 +60,7 @@ class UserController extends Controller
         $user->password = md5($request->pass);
         $user->status = 'new';
         $user->save();
+        Session::put('message', 'Đăng kí thành công!');
         return redirect()->route('showLogin');
     }
 
@@ -71,6 +72,7 @@ class UserController extends Controller
         if (!empty($user)) {
             if ($user->email == $email && $user->password == $pass) {
                 Session::put('user', $user);
+                Session::put('message', 'Đăng nhập thành công!');
                 return redirect()->route('dashboard');
             } else {
                 Session::put('message', 'Tên hoặc tài khoản không khớp!');
