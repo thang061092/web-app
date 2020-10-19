@@ -1,0 +1,113 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+use JD\Cloudder\Facades\Cloudder;
+
+class UserController extends Controller
+{
+    public function show_login()
+    {
+        return view('auth.login');
+    }
+
+    public function show_register()
+    {
+        return view('auth.register');
+    }
+
+    public function register(Request $request)
+    {
+        if (empty($request->name)) {
+            Session::put('message', 'Tên không được để trống!');
+            return redirect()->route('showRegister');
+        }
+        if (empty($request->phone)) {
+            Session::put('message', 'Phone không được để trống!');
+            return redirect()->route('showRegister');
+        } else {
+            $user = User::where('phone', $request->phone)->first();
+            if (!empty($user)) {
+                Session::put('message', 'Số điện thoại đã tồn tại!');
+                return redirect()->route('showRegister');
+            }
+        }
+        if (empty($request->email)) {
+            Session::put('message', 'Email không được để trống!');
+            return redirect()->route('showRegister');
+        } else {
+            $user = User::where('email', $request->email)->first();
+            if (!empty($user)) {
+                Session::put('message', 'Email đã tồn tại!');
+                return redirect()->route('showRegister');
+            }
+        }
+        if (empty($request->pass) || empty($request->re_pass)) {
+            Session::put('message', 'Mật khẩu không được để trống!');
+            return redirect()->route('showRegister');
+        } elseif ($request->pass != $request->re_pass) {
+            Session::put('message', 'Mật khẩu không khớp!');
+            return redirect()->route('showRegister');
+        }
+        $user = new User();
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $user->email = $request->email;
+        $user->password = md5($request->pass);
+        $user->status = 'new';
+        $user->save();
+        return redirect()->route('showLogin');
+    }
+
+    public function appLogin(Request $request)
+    {
+        $email = $request->email;
+        $pass = md5($request->pass);
+        $user = User::where('email', $email)->first();
+        if (!empty($user)) {
+            if ($user->email == $email && $user->password == $pass) {
+                Session::put('user', $user);
+                return redirect()->route('dashboard');
+            } else {
+                Session::put('message', 'Tên hoặc tài khoản không khớp!');
+                return redirect()->route('showLogin');
+            }
+        } else {
+            Session::put('message', 'Tài khoản không tồn tại! ');
+            return redirect()->route('showLogin');
+        }
+    }
+
+    public function dashboard()
+    {
+        return view('admin.dashboard.dashboard');
+    }
+
+    public function logout()
+    {
+        Session::remove('user');
+        return redirect()->route('showLogin');
+    }
+
+    public function show_profile($id)
+    {
+        $user = User::find($id);
+        return view('admin.dashboard.profile', compact('user'));
+    }
+
+    public function update_profile(Request $request, $id)
+    {
+        $user = User::find($id);
+        $user->name = $request->name;
+        if ($request->hasFile('avatar')) {
+            $result = $request->file('avatar')->storeOnCloudinary();
+        }
+        $user->image = $result->getPath();
+        $user->save();
+        return redirect()->route('showProfile',$id);
+    }
+}
