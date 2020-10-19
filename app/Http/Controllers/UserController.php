@@ -23,34 +23,34 @@ class UserController extends Controller
     public function register(Request $request)
     {
         if (empty($request->name)) {
-            Session::put('message', 'Tên không được để trống!');
+            Session::put('register', 'Tên không được để trống!');
             return redirect()->route('showRegister');
         }
         if (empty($request->phone)) {
-            Session::put('message', 'Phone không được để trống!');
+            Session::put('register', 'Phone không được để trống!');
             return redirect()->route('showRegister');
         } else {
             $user = User::where('phone', $request->phone)->first();
             if (!empty($user)) {
-                Session::put('message', 'Số điện thoại đã tồn tại!');
+                Session::put('register', 'Số điện thoại đã tồn tại!');
                 return redirect()->route('showRegister');
             }
         }
         if (empty($request->email)) {
-            Session::put('message', 'Email không được để trống!');
+            Session::put('register', 'Email không được để trống!');
             return redirect()->route('showRegister');
         } else {
             $user = User::where('email', $request->email)->first();
             if (!empty($user)) {
-                Session::put('message', 'Email đã tồn tại!');
+                Session::put('register', 'Email đã tồn tại!');
                 return redirect()->route('showRegister');
             }
         }
         if (empty($request->pass) || empty($request->re_pass)) {
-            Session::put('message', 'Mật khẩu không được để trống!');
+            Session::put('register', 'Mật khẩu không được để trống!');
             return redirect()->route('showRegister');
         } elseif ($request->pass != $request->re_pass) {
-            Session::put('message', 'Mật khẩu không khớp!');
+            Session::put('register', 'Mật khẩu không khớp!');
             return redirect()->route('showRegister');
         }
         $user = new User();
@@ -60,7 +60,7 @@ class UserController extends Controller
         $user->password = md5($request->pass);
         $user->status = 'new';
         $user->save();
-        Session::remove('message');
+        Session::remove('register');
         return redirect()->route('showLogin');
     }
 
@@ -72,14 +72,14 @@ class UserController extends Controller
         if (!empty($user)) {
             if ($user->email == $email && $user->password == $pass) {
                 Session::put('user', $user);
-                Session::remove('message');
+                Session::remove('login');
                 return redirect()->route('dashboard');
             } else {
-                Session::put('message', 'Tên hoặc tài khoản không khớp!');
+                Session::put('login', 'Tên hoặc tài khoản không khớp!');
                 return redirect()->route('showLogin');
             }
         } else {
-            Session::put('message', 'Tài khoản không tồn tại! ');
+            Session::put('login', 'Tài khoản không tồn tại! ');
             return redirect()->route('showLogin');
         }
     }
@@ -109,6 +109,7 @@ class UserController extends Controller
             $result = $request->file('avatar')->storeOnCloudinary();
             $user->image = $result->getPath();
         }
+        Session::put('message','Cập nhật thành công!');
         $user->save();
         Session::put('user', $user);
         return redirect()->route('showProfile', $id);

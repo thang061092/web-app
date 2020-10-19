@@ -19,8 +19,12 @@ Route::get('/show-login', [UserController::class, 'show_login'])->name('showLogi
 Route::get('/show-register', [UserController::class, 'show_register'])->name('showRegister');
 Route::post('/register', [UserController::class, 'register'])->name('register');
 Route::post('/appLogin', [UserController::class, 'appLogin'])->name('appLogin');
-Route::get('/appLogout', [UserController::class, 'logout'])->name('logout');
-Route::get('/show-profile/{id}', [UserController::class, 'show_profile'])->name('showProfile');
-Route::post('/update-profile/{id}', [UserController::class, 'update_profile'])->name('updateProfile');
 
-Route::get('/', [UserController::class, 'dashboard'])->name('dashboard');
+
+Route::middleware('login')->group(function () {
+    Route::get('/', [UserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/show-profile/{id}', [UserController::class, 'show_profile'])->name('showProfile');
+    Route::post('/update-profile/{id}', [UserController::class, 'update_profile'])->name('updateProfile');
+    Route::get('/appLogout', [UserController::class, 'logout'])->name('logout');
+});
+
