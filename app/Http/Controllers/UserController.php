@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use JD\Cloudder\Facades\Cloudder;
 
 class UserController extends Controller
 {
@@ -26,6 +24,7 @@ class UserController extends Controller
             Session::put('register', 'Tên không được để trống!');
             return redirect()->route('showRegister');
         }
+
         if (empty($request->phone)) {
             Session::put('register', 'Phone không được để trống!');
             return redirect()->route('showRegister');
@@ -36,6 +35,7 @@ class UserController extends Controller
                 return redirect()->route('showRegister');
             }
         }
+
         if (empty($request->email)) {
             Session::put('register', 'Email không được để trống!');
             return redirect()->route('showRegister');
@@ -46,6 +46,19 @@ class UserController extends Controller
                 return redirect()->route('showRegister');
             }
         }
+
+        if (!empty($request->email)) {
+            if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+                Session::put('register', 'Định dạng email không hợp lệ!');
+                return redirect()->route('showRegister');
+            }
+        }
+
+        if (strlen($request->pass) < 6) {
+            Session::put('register', 'Mật khẩu ít nhất 6 kí tự!');
+            return redirect()->route('showRegister');
+        }
+
         if (empty($request->pass) || empty($request->re_pass)) {
             Session::put('register', 'Mật khẩu không được để trống!');
             return redirect()->route('showRegister');
@@ -53,6 +66,7 @@ class UserController extends Controller
             Session::put('register', 'Mật khẩu không khớp!');
             return redirect()->route('showRegister');
         }
+
         $user = new User();
         $user->name = $request->name;
         $user->phone = $request->phone;
@@ -106,10 +120,12 @@ class UserController extends Controller
         $user = User::find($id);
         $user->name = $request->name;
         if ($request->hasFile('avatar')) {
+            //upload image
             $result = $request->file('avatar')->storeOnCloudinary();
+            //get url image luu vao db
             $user->image = $result->getPath();
         }
-        Session::put('message','Cập nhật thành công!');
+        Session::put('message', 'Cập nhật thành công!');
         $user->save();
         Session::put('user', $user);
         return redirect()->route('showProfile', $id);
